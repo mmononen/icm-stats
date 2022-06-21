@@ -23,7 +23,7 @@ def print_list(topic, input_list, type, amount):
     returned.append(topic)
     returned.append("-"*len(topic))
     for l in input_list:        
-        if ((type == 'rank' and l.rank > 0) or (type == 'percentage' and (l.checked < l.total_checks)) or (type == 'completed' and (l.checked == l.total_checks)) or (type == 'unstarted' and (l.checked == 0)) or (type == 'under1000' and l.rank < 1000 and l.checked > 0) or (type == "biglists" and l.total_checks > 999)):
+        if ((type == 'rank' and l.rank > 0) or (type == 'percentage' and (l.checked < l.total_checks)) or (type == 'completed' and (l.checked == l.total_checks)) or (type == 'unstarted' and (l.checked == 0)) or (type == 'under1000' and l.rank < 1000 and l.checked > 0) or (type == "biglists" and l.total_checks > 999)  or (type == "between1000and2000" and 1000 <= l.rank <= 2000)):
             i = i + 1            
             print_list.append(f"{'0' + str(i) if (i<10) else i}. {l.name} ({l.checked}/{l.total_checks}) #{l.rank} ({round(l.percentage, 1)}%)")
         if (i > (amount - 1)):
@@ -92,7 +92,9 @@ try:
     final_print.append(print_list("Bottom lists by rank:", lists, "rank", 10))
 
     lists.sort(key=lambda x: x.rank, reverse=False)
-    final_print.append(print_list("Top lists under rank #1000:", lists, "under1000", 300))
+    final_print.append(print_list("Lists under rank #1000:", lists, "under1000", 300))
+
+    final_print.append(print_list("Lists between ranks #1000 and #2000:", lists, "between1000and2000", 300))
 
     lists.sort(key=lambda x: x.rank, reverse=False)
     final_print.append(print_list("Big lists (1000+ movies) by rank:", lists, "biglists", 300))
