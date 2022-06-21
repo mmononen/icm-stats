@@ -8,7 +8,8 @@ Run the script with Python3 and provide optional username as a command-line argu
 * Top unfinished lists by completion percentage
 * Top lists by rank
 * Bottom lists by rank
-* Top lists under rank #1000
+* Lists under rank #1000
+* Lists between ranks #1000 and #2000
 * Big lists (1000+ movies) by rank
 * Top lists by number of checked films
 * Completed lists
