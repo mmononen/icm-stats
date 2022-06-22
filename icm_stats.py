@@ -14,6 +14,7 @@ class TopList:
         self.unchecked = 0
         self.rank = 0
         self.percentage = 0
+        self.url = ''
 
 # Print the movie lists with different options
 def print_list(topic, input_list, type, amount):
@@ -30,7 +31,7 @@ def print_list(topic, input_list, type, amount):
     for l in input_list:        
         if ((type == 'rank' and l.rank > 0) or (type == 'percentage' and (l.checked < l.total_checks)) or (type == 'completed' and (l.checked == l.total_checks)) or (type == 'unstarted' and (l.checked == 0)) or (type == 'under1000' and l.rank < 1000 and l.checked > 0) or (type == "biglists" and l.total_checks > 999)  or (type == "between1000and2000" and 1000 <= l.rank <= 2000)):
             i = i + 1
-            print_list.append(f"{'0' + str(i) if (i<10) else i}. {'<strong>' if to_html else ''}{l.name}{'</strong>' if to_html else ''} ({l.checked}/{l.total_checks}) #{l.rank} ({round(l.percentage, 1)}%){'<br>' if to_html else ''}")
+            print_list.append(f"{'0' + str(i) if (i<10) else i}. {'<strong>' if to_html else ''}<a href='{l.url}'>{l.name}</a>{'</strong>' if to_html else ''} ({l.checked}/{l.total_checks}) #{l.rank} ({round(l.percentage, 1)}%){'<br>' if to_html else ''}")
         if (i > (amount - 1)):
             break
     if len(print_list) > 0:
@@ -72,8 +73,9 @@ try:
     to_html = True
     # html header
     html_header = f'<!DOCTYPE html>\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<meta http-equiv="X-UA-Compatible" content="IE=edge">\n\t<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
-    html_header += f"\t<title>Simple ICM stats for {username}</title>\n"
+    html_header += f"\t<title>ICM stats for {username}</title>\n"
     html_header += f'\t<link rel="stylesheet" href="style.css">\n'
+    html_header += f'<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />\n'
     html_header += f"</head>\n<body>\n"
     # html footer
     html_footer = f'<script src="script.js"></script><p class="footer">Stats generated {year_month_day} by <a href="https://github.com/mmononen/icm-stats">ICM stats script</a></p></body>\n</html>\n'
@@ -81,6 +83,15 @@ try:
     lists_temp = results.find_all("h3")
     for list_name in lists_temp:
         lists.append(TopList(list_name.text.strip()))
+    
+    lists_temp = results.find_all("a", class_="title")
+    i = 0
+    for list_item in lists_temp:        
+        list_item = list_item.get("href")
+        lists[i].url = f'https://www.icheckmovies.com{list_item}'
+        print(lists[i].url)
+        i = i + 1
+
 
     # populate rest of the TopList object properties
     lists_temp = results.find_all("span", class_="rank")
