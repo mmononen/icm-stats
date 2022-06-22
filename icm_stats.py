@@ -20,20 +20,31 @@ def print_list(topic, input_list, type, amount):
     i = 0
     returned = []
     print_list = []
-    returned.append(topic)
-    returned.append("-"*len(topic))
+    if (to_html):
+        s = f'<button class="accordion">&emsp;{topic}</button>\n<div class="panel">\n<p>\n'
+        returned.append(s)
+    else:
+        returned.append(topic)
+    if not to_html:
+        returned.append("-"*len(topic))
     for l in input_list:        
         if ((type == 'rank' and l.rank > 0) or (type == 'percentage' and (l.checked < l.total_checks)) or (type == 'completed' and (l.checked == l.total_checks)) or (type == 'unstarted' and (l.checked == 0)) or (type == 'under1000' and l.rank < 1000 and l.checked > 0) or (type == "biglists" and l.total_checks > 999)  or (type == "between1000and2000" and 1000 <= l.rank <= 2000)):
-            i = i + 1            
-            print_list.append(f"{'0' + str(i) if (i<10) else i}. {l.name} ({l.checked}/{l.total_checks}) #{l.rank} ({round(l.percentage, 1)}%)")
+            i = i + 1
+            print_list.append(f"{'0' + str(i) if (i<10) else i}. {'<strong>' if to_html else ''}{l.name}{'</strong>' if to_html else ''} ({l.checked}/{l.total_checks}) #{l.rank} ({round(l.percentage, 1)}%){'<br>' if to_html else ''}")
         if (i > (amount - 1)):
             break
     if len(print_list) > 0:
         for pl in print_list:
             returned.append(pl)
     else:
-        returned.append("<No lists.>")
-    returned.append("\n")
+        if (to_html):
+            returned.append("<p>No lists.</p>")
+        else:
+            returned.append("<No lists.>")
+    if (to_html):
+        returned.append("\n</p>\n</div>\n")
+    else:
+        returned.append("\n")
     return returned
 
 # get username's progress on official lists
@@ -44,6 +55,8 @@ except:
     username = ''
 
 URL = f"https://www.icheckmovies.com/profiles/progress/?user={username}"
+e = datetime.datetime.now()
+year_month_day = f"{e.year}-{'0' + str(e.month) if (int(e.month) < 10) else e.month}-{e.day}"
 try:
     page = requests.get(URL)
     soup = BeautifulSoup(page.content, "html.parser")
@@ -53,9 +66,17 @@ try:
 
     # Save a reference to the original standard output
     original_stdout = sys.stdout
+    # True = write results to a file. False = print results to the screen
     write_results_to_file = True
-
-
+    # True = output to html, use with included css and js files. False = output is a plain text file
+    to_html = True
+    # html header
+    html_header = f'<!DOCTYPE html>\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<meta http-equiv="X-UA-Compatible" content="IE=edge">\n\t<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
+    html_header += f"\t<title>Simple ICM stats for {username}</title>\n"
+    html_header += f'\t<link rel="stylesheet" href="style.css">\n'
+    html_header += f"</head>\n<body>\n"
+    # html footer
+    html_footer = f'<script src="script.js"></script><p class="footer">Stats generated {year_month_day} by <a href="https://github.com/mmononen/icm-stats">ICM stats script</a></p></body>\n</html>\n'
     # scrape top list names and create TopList objects and append them on lists array
     lists_temp = results.find_all("h3")
     for list_name in lists_temp:
@@ -81,15 +102,18 @@ try:
 
     #uncomment to print all the lists in alphabetical order
     #lists.sort(key=lambda x: x.name.upper(), reverse=False)
+    if to_html:
+        final_print.append([html_header])
+        final_print.append([f'<h2><a href="https://www.icheckmovies.com/">ICM</a> Statistics for <a href="{URL}">{username}</a></h2>'])
 
     lists.sort(key=lambda x: x.percentage, reverse=True)
-    final_print.append(print_list("Top unfinished lists by completion percentage:", lists, "percentage", 10))
+    final_print.append(print_list("Top unfinished lists by completion percentage:", lists, "percentage", 20))
 
     lists.sort(key=lambda x: x.rank, reverse=False)
-    final_print.append(print_list("Top lists by rank:", lists, "rank", 10))
+    final_print.append(print_list("Top lists by rank:", lists, "rank", 20))
 
     lists.sort(key=lambda x: x.rank, reverse=True)
-    final_print.append(print_list("Bottom lists by rank:", lists, "rank", 10))
+    final_print.append(print_list("Bottom lists by rank:", lists, "rank", 20))
 
     lists.sort(key=lambda x: x.rank, reverse=False)
     final_print.append(print_list("Lists under rank #1000:", lists, "under1000", 300))
@@ -100,7 +124,7 @@ try:
     final_print.append(print_list("Big lists (1000+ movies) by rank:", lists, "biglists", 300))
 
     lists.sort(key=lambda x: x.checked, reverse=True)
-    final_print.append(print_list("Top lists by number of checked films:", lists, "rank", 10))
+    final_print.append(print_list("Top lists by number of checked films:", lists, "rank", 20))
 
     lists.sort(key=lambda x: x.name.upper(), reverse=False)
     final_print.append(print_list("Completed lists:", lists, "completed", 300))
@@ -108,10 +132,14 @@ try:
     # No need to sort the list again
     final_print.append(print_list("Unstarted lists:", lists, "unstarted", 300))
 
+    if to_html:
+        lists.sort(key=lambda x: x.percentage, reverse=True)
+        final_print.append(print_list("All lists:", lists, "percentage", 500))
+        final_print.append([html_footer])
 
     if (write_results_to_file):   
-        e = datetime.datetime.now()
-        fn = f"{e.year}-{'0' + str(e.month) if (int(e.month) < 10) else e.month}-{e.day}-icm-stats-{username}.txt"  
+        
+        fn = f"{year_month_day}-icm-stats-{username}.{'html' if to_html else 'txt'}"
         with codecs.open(fn, 'w', 'utf-8') as f:
             sys.stdout = f
             for list_lines in final_print:
@@ -123,5 +151,4 @@ try:
             for lines in list_lines:
                 print(lines)
 except:
-    print("No results with given username.")
-
+    print(f"{'Username is <blank>.' if len(username) < 1 else 'No results with given username.'}")
