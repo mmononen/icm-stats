@@ -2,7 +2,7 @@
 A simple unofficial iCheckMovies statistics tool. 
 
 ## Usage
-Run the script with Python3 and provide optional username as a command-line argument or edit the eligible username in code. The scripts writes a textfile (year-month-day-icm-stats-username.txt) by default but changing the variable _write_results_to_file_ to False lets the program just print the statistics out.
+Run the script with Python3 and provide optional username as a command-line argument or edit the eligible username in code. The scripts writes a html file (year-month-day-icm-stats-username.html) by default, but optionally a plain textfile or printing to console is available.
 
 ## Statistics
 * Top unfinished lists by completion percentage
