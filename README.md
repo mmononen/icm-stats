@@ -14,6 +14,7 @@ Run the script with Python3 and provide optional username as a command-line argu
 * Top lists by number of checked films
 * Completed lists
 * Unstarted lists
+* All lists (in HTML output mode)
 
 ## Requirements
 * Requests
