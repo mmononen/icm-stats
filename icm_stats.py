@@ -89,7 +89,6 @@ try:
     for list_item in lists_temp:        
         list_item = list_item.get("href")
         lists[i].url = f'https://www.icheckmovies.com{list_item}'
-        print(lists[i].url)
         i = i + 1
 
 
