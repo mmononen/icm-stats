@@ -15,6 +15,7 @@ class TopList:
         self.rank = 0
         self.percentage = 0
         self.url = ''
+        self.rank_url = ''
 
 # Print the movie lists with different options
 def print_list(topic, input_list, type, amount):
@@ -31,7 +32,11 @@ def print_list(topic, input_list, type, amount):
     for l in input_list:        
         if ((type == 'rank' and l.rank > 0) or (type == 'percentage' and (l.checked < l.total_checks)) or (type == 'completed' and (l.checked == l.total_checks)) or (type == 'unstarted' and (l.checked == 0)) or (type == 'under1000' and l.rank < 1000 and l.checked > 0) or (type == "biglists" and l.total_checks > 999)  or (type == "between1000and2000" and 1000 <= l.rank <= 2000)):
             i = i + 1
-            print_list.append(f"{'0' + str(i) if (i<10) else i}. {'<strong>' if to_html else ''}<a href='{l.url}'>{l.name}</a>{'</strong>' if to_html else ''} ({l.checked}/{l.total_checks}) #{l.rank} ({round(l.percentage, 1)}%){'<br>' if to_html else ''}")
+            if (to_html) and (len(l.rank_url) > 0):
+                l_rank_str = f'<a href="https://www.icheckmovies.com{l.rank_url}">#{l.rank}</a>'
+            else:
+                l_rank_str = f'-'
+            print_list.append(f"{'0' + str(i) if (i<10) else i}. {'<strong>' if to_html else ''}<a href='{l.url}'>{l.name}</a>{'</strong>' if to_html else ''} ({l.checked}/{l.total_checks}) {l_rank_str} ({round(l.percentage, 1)}%){'<br>' if to_html else ''}")
         if (i > (amount - 1)):
             break
     if len(print_list) > 0:
@@ -96,6 +101,16 @@ try:
     lists_temp = results.find_all("span", class_="rank")
     i = 0
     for list_item in lists_temp:
+        l_rank = list_item.find_all("a")        
+        if len(l_rank) > 0:
+            l_rank = l_rank[0]
+            l_rank = str(l_rank)
+            l_rank = l_rank[9:]
+            l_rank = l_rank.split('">')
+            l_rank = l_rank[0]
+        else:
+            l_rank = ""
+        lists[i].rank_url = l_rank
         for l in list_item:
             temp = l.text.strip()
             temp = temp.split(" / ")
