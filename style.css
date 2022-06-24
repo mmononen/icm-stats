@@ -32,13 +32,13 @@ body {
 a:link {
     color: #bb86fc;
     background-color: transparent;
-    text-decoration: none;
+    text-decoration: underline;
   }
   
   a:visited {
     color: #bb86fc;
     background-color: transparent;
-    text-decoration: none;
+    text-decoration: underline;
   }
   
 
