@@ -1,5 +1,5 @@
 # icm-stats
-A simple unofficial iCheckMovies statistics tool. 
+A simple unofficial iCheckMovies.com statistics tool. 
 
 ## Usage
 Run the script with Python3 and provide optional username as a command-line argument or edit the eligible username in code. The scripts writes a html file (year-month-day-icm-stats-username.html) by default, but optionally a plain textfile or printing to console is available.
